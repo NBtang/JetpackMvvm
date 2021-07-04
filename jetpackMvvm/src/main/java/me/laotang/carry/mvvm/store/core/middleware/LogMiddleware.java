@@ -1,4 +1,4 @@
-package me.laotang.carry.mvvm.dispatcher.middleware;
+package me.laotang.carry.mvvm.store.core.middleware;
 
 import android.util.Log;
 

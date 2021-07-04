@@ -1,9 +1,10 @@
-package me.laotang.carry.mvvm.dispatcher;
+package me.laotang.carry.mvvm.store.core.dispatcher;
 
 import java.util.Arrays;
 import java.util.Iterator;
 
-import me.laotang.carry.mvvm.dispatcher.middleware.Middleware;
+import me.laotang.carry.mvvm.store.core.effect.Effect;
+import me.laotang.carry.mvvm.store.core.middleware.Middleware;
 
 public abstract class Dispatcher<A, R> implements IDispatcher<A, R> {
 
@@ -14,6 +15,20 @@ public abstract class Dispatcher<A, R> implements IDispatcher<A, R> {
             public A dispatch(A action) {
                 effect.onEffect(action);
                 return action;
+            }
+        };
+    }
+
+    public static <T extends Effect<A>, A> Dispatcher<A, A> create(final T effect, final IDispatcher<A, A> dispatcher) {
+        if (dispatcher == null) {
+            return create(effect);
+        }
+        return new Dispatcher<A, A>() {
+            @Override
+            public A dispatch(A action) {
+                A newAction = dispatcher.dispatch(action);
+                effect.onEffect(newAction);
+                return newAction;
             }
         };
     }

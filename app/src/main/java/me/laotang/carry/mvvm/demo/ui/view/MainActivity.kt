@@ -8,7 +8,7 @@ import me.laotang.carry.core.json.JsonConverter
 import me.laotang.carry.mvvm.demo.R
 import me.laotang.carry.mvvm.demo.BR
 import me.laotang.carry.mvvm.demo.databinding.ActivityMainBinding
-import me.laotang.carry.mvvm.demo.ui.action.UserInfoActionCreator
+import me.laotang.carry.mvvm.demo.ui.action.MainViewActionCreator
 import me.laotang.carry.mvvm.demo.ui.store.MainViewModel
 import me.laotang.carry.mvvm.view.BaseDataBindActivity
 import me.laotang.carry.mvvm.view.DataBindingConfig
@@ -26,31 +26,19 @@ class MainActivity : BaseDataBindActivity<ActivityMainBinding>() {
     @Inject
     lateinit var jsonConverter: JsonConverter
 
-    private val store by viewModels<MainViewModel>()
+    private val viewModel by viewModels<MainViewModel>()
 
     private val listenerHandler: ListenerHandler by lazy {
-        ListenerHandler(store)
+        ListenerHandler(viewModel)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //Request响应view层的生命周期，自动取消任务
-        lifecycle.addObserver(store.userInfoRequest)
-
-        //监听loading显示事件
-        store.loadingLiveData.observe(this, {
-            if (it) {
-                showLoading("加载中...")
-            } else {
-                hideLoading()
-            }
-        })
-
         if (savedInstanceState == null) {
             //liveData响应生命周期不一定及时，通过view.post来确保liveData的订阅有效
             binding.root.post {
-                store.dispatcher.dispatch(UserInfoActionCreator.getUsers(0))
+                viewModel.dispatcher.dispatch(MainViewActionCreator.load(0))
             }
         }
     }
@@ -58,10 +46,13 @@ class MainActivity : BaseDataBindActivity<ActivityMainBinding>() {
     override fun layoutId(): Int = R.layout.activity_main
 
     override fun getDataBindingConfig(): DataBindingConfig {
-        return DataBindingConfig(BR.vm, store)
+        return DataBindingConfig(BR.vm, viewModel)
             .addBindingParam(BR.listener, listenerHandler)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+    }
     /**
      * MainActivity的UI响应事件（如点击），单独拎出来，通过dataBinding实现绑定，交互的数据由viewModel层提供
      * MainActivity处理其他和model层不交互的UI事件
@@ -75,7 +66,7 @@ class MainActivity : BaseDataBindActivity<ActivityMainBinding>() {
                     "Id不能为空".toasty()
                     return@Consumer
                 }
-                store.dispatcher.dispatch(UserInfoActionCreator.getUsers(lastIdQueried))
+                store.dispatcher.dispatch(MainViewActionCreator.load(lastIdQueried))
             }
         }
     }

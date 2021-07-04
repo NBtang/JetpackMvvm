@@ -6,6 +6,7 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.components.ApplicationComponent
+import me.laotang.carry.mvvm.demo.store.GlobalStore
 
 object ComponentEntryPoint {
 
@@ -15,6 +16,7 @@ object ComponentEntryPoint {
     @InstallIn(ApplicationComponent::class)
     interface IComponentEntryPoint {
         fun moshi(): Moshi
+        fun globalStore(): GlobalStore
     }
 
     fun getEntryPoint(context: Context): IComponentEntryPoint {

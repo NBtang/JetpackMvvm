@@ -1,13 +1,14 @@
-package me.laotang.carry.mvvm.dispatcher.flow
+package me.laotang.carry.mvvm.store.core.dispatcher.flow
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import me.laotang.carry.mvvm.dispatcher.Dispatcher
+import me.laotang.carry.mvvm.store.core.dispatcher.Dispatcher
+import me.laotang.carry.mvvm.store.core.dispatcher.IDispatcher
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-class FlowDispatcher<A>(private val dispatcher: Dispatcher<A, *>) : Dispatcher<Flow<A>, Job>() {
+class FlowDispatcher<A>(private val dispatcher: IDispatcher<A, *>) : Dispatcher<Flow<A>, Job>() {
     private val scope: CoroutineScope
 
     init {
@@ -30,3 +31,9 @@ class FlowDispatcher<A>(private val dispatcher: Dispatcher<A, *>) : Dispatcher<F
         scope.cancel()
     }
 }
+
+
+val <A, R> IDispatcher<A, R>.asFlowDispatcher: FlowDispatcher<A>
+    get() {
+        return FlowDispatcher(this)
+    }

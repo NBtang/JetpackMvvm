@@ -1,6 +1,5 @@
 package me.laotang.carry.mvvm.domain
 
-import androidx.lifecycle.*
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -9,15 +8,14 @@ import kotlinx.coroutines.*
 import me.jessyan.rxerrorhandler.core.RxErrorHandler
 import me.jessyan.rxerrorhandler.handler.ErrorHandlerFactory
 import me.laotang.carry.AppManager
+import java.io.Closeable
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * 根据业务抽离一个个Request，便于复用
- * 内部维护一个LifecycleRegistry，注册后可与view层的生命周期响应
- * 方便RxJava，协程等生命周期管理
  */
-abstract class BaseRequest : IRequest, DefaultLifecycleObserver, LifecycleOwner {
-
-    private var mLifecycleRegistry: LifecycleRegistry? = null
+abstract class BaseRequest : Closeable {
 
     //全局异常回调
     protected lateinit var mHandlerFactory: ErrorHandlerFactory
@@ -28,17 +26,16 @@ abstract class BaseRequest : IRequest, DefaultLifecycleObserver, LifecycleOwner 
         fun rxErrorHandler(): RxErrorHandler
     }
 
+    private val scope: CoroutineScope
+
     init {
-        initLifecycle()
         initErrorHandler()
+        val context: CoroutineContext = EmptyCoroutineContext
+        val supervisorJob = SupervisorJob(context[Job])
+        val coroutineContext = Dispatchers.Main.immediate + context + supervisorJob
+        scope = CoroutineScope(coroutineContext)
     }
 
-    private fun initLifecycle(): LifecycleRegistry {
-        if (mLifecycleRegistry == null) {
-            mLifecycleRegistry = LifecycleRegistry(this)
-        }
-        return mLifecycleRegistry!!
-    }
 
     private fun initErrorHandler() {
         val entryPoint = EntryPointAccessors.fromApplication(
@@ -48,44 +45,13 @@ abstract class BaseRequest : IRequest, DefaultLifecycleObserver, LifecycleOwner 
         mHandlerFactory = entryPoint.rxErrorHandler().handlerFactory
     }
 
-    //生命周期相关
-    override fun getLifecycle(): Lifecycle {
-        return initLifecycle()
-    }
-
-    override fun onCreate(owner: LifecycleOwner) {
-        initLifecycle().handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    }
-
-    override fun onStart(owner: LifecycleOwner) {
-        initLifecycle().handleLifecycleEvent(Lifecycle.Event.ON_START)
-    }
-
-    override fun onResume(owner: LifecycleOwner) {
-        initLifecycle().handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    }
-
-    override fun onPause(owner: LifecycleOwner) {
-        initLifecycle().handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    }
-
-    override fun onStop(owner: LifecycleOwner) {
-        initLifecycle().handleLifecycleEvent(Lifecycle.Event.ON_STOP)
-    }
-
-    override fun onDestroy(owner: LifecycleOwner) {
-        initLifecycle().handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-        owner.lifecycle.removeObserver(this)
-        mLifecycleRegistry = null
-    }
-
     //协程辅助
     protected fun launch(
         block: suspend CoroutineScope.() -> Unit,
         onError: ((Throwable) -> Unit),
         enableHandleError: Boolean = true
     ) =
-        lifecycleScope.launch(CoroutineExceptionHandler { _, throwable ->
+        scope.launch(CoroutineExceptionHandler { _, throwable ->
             if (throwable !is CancellationException) {
                 if (enableHandleError) {
                     mHandlerFactory.handleError(throwable)
@@ -100,11 +66,15 @@ abstract class BaseRequest : IRequest, DefaultLifecycleObserver, LifecycleOwner 
         enableHandleError: Boolean = true,
         block: suspend CoroutineScope.() -> Unit
     ) =
-        lifecycleScope.launch(CoroutineExceptionHandler { _, throwable ->
+        scope.launch(CoroutineExceptionHandler { _, throwable ->
             if (throwable !is CancellationException && enableHandleError) {
                 mHandlerFactory.handleError(throwable)
             }
         }) {
             block()
         }
+
+    override fun close() {
+        scope.cancel()
+    }
 }

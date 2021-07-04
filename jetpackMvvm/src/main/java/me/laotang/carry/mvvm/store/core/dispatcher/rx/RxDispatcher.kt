@@ -1,12 +1,12 @@
-package me.laotang.carry.mvvm.dispatcher.rx
+package me.laotang.carry.mvvm.store.core.dispatcher.rx
 
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import me.laotang.carry.core.subscriber.RxSubscriber
-import me.laotang.carry.mvvm.dispatcher.Action
-import me.laotang.carry.mvvm.dispatcher.Dispatcher
+import me.laotang.carry.mvvm.store.core.dispatcher.Dispatcher
+import me.laotang.carry.mvvm.store.core.dispatcher.IDispatcher
 
-class RxDispatcher<A : Action>(private val dispatcher: Dispatcher<Action, *>) :
+class RxDispatcher<A>(private val dispatcher: IDispatcher<A, *>) :
     Dispatcher<Observable<A>, Unit>() {
 
     private val compositeDisposable: CompositeDisposable by lazy {
@@ -27,3 +27,8 @@ class RxDispatcher<A : Action>(private val dispatcher: Dispatcher<Action, *>) :
         compositeDisposable.dispose()
     }
 }
+
+val <A, R> IDispatcher<A, R>.asRxDispatcher: RxDispatcher<A>
+    get() {
+        return RxDispatcher(this)
+    }

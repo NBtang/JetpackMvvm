@@ -1,7 +1,6 @@
-package me.laotang.carry.mvvm.dispatcher.thunk;
+package me.laotang.carry.mvvm.store.core.dispatcher.thunk;
 
-import me.laotang.carry.mvvm.dispatcher.Dispatcher;
-import me.laotang.carry.mvvm.dispatcher.thunk.Thunk;
+import me.laotang.carry.mvvm.store.core.dispatcher.Dispatcher;
 
 public class ThunkDispatcher<A, R> extends Dispatcher<Thunk<A, R>,Void> {
 
