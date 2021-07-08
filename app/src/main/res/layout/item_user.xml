@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout >
+
+    <data>
+        <variable
+            name="user"
+            type="me.laotang.carry.mvvm.demo.model.entity.User" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:layout_height="match_parent"
+        tools:layout_width="match_parent">
+
+        <ImageView
+            app:url="@{user.avatarUrl}"
+            android:id="@+id/iv_user"
+            android:layout_width="160dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/tv_user_login"
+            app:layout_constraintDimensionRatio="H,1:1"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/tv_user_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_user"
+            android:text="@{user.login}"
+            tools:text="userName" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

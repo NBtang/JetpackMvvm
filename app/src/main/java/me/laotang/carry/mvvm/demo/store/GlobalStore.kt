@@ -9,7 +9,6 @@ import me.laotang.carry.core.subscriber.ProgressDialogUtil
 import me.laotang.carry.mvvm.store.*
 import me.laotang.carry.mvvm.store.redux.Effect
 import me.laotang.carry.mvvm.store.redux.dispatcher.Dispatcher
-import me.laotang.carry.mvvm.store.redux.middleware.LogMiddleware
 import me.laotang.carry.mvvm.store.redux.Store
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,7 +31,6 @@ class GlobalStore @Inject constructor() :
 
     private val mDispatcher: Dispatcher<Action, Action> by lazy {
         Dispatcher.create(this)
-            .chain(LogMiddleware("${GlobalStore::class.java.simpleName} action"))
     }
 
     val dispatcher: Dispatcher<Action, Action>

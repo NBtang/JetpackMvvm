@@ -2,7 +2,6 @@ package me.laotang.carry.mvvm.demo.ui.store
 
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
-import io.reactivex.functions.Consumer
 import me.laotang.carry.mvvm.demo.domain.UserInfoRequestImpl
 import me.laotang.carry.mvvm.demo.model.entity.User
 import me.laotang.carry.mvvm.demo.store.GlobalStore
@@ -21,6 +20,9 @@ class MainViewModel @ViewModelInject constructor(
 ) :
     ViewModel() {
 
+    /**
+     * redux的store
+     */
     private val store: MainViewStore by lazy {
         MainViewStore(MainViewState(), globalStore, userInfoRequest)
     }
@@ -37,19 +39,6 @@ class MainViewModel @ViewModelInject constructor(
 
     val lastIdQueried: String
         get() = state.lastIdQueried
-
-    //通过dataBinding实现和view层的editText的textChange事件的绑定，在viewModel实时保存
-    //单项绑定
-    val lastIdQueriedChanges: Consumer<CharSequence> by lazy {
-        Consumer<CharSequence> {
-            val lastIdQueried = it.toString()
-            val oldState = store.getState()
-            if (lastIdQueried == oldState.lastIdQueried) {
-                return@Consumer
-            }
-            store.setState(oldState.copy(lastIdQueried = lastIdQueried))
-        }
-    }
 
     override fun onCleared() {
         super.onCleared()

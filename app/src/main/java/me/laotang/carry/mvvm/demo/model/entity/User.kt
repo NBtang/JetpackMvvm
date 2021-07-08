@@ -1,6 +1,7 @@
 package me.laotang.carry.mvvm.demo.model.entity
 
 import com.squareup.moshi.*
+import me.laotang.carry.mvvm.entity.DataEntity
 
 @JsonClass(generateAdapter = true)
 data class User(
@@ -8,7 +9,7 @@ data class User(
     @Json(name = "login") val login: String,
     @Json(name = "type") val userType: UserType,
     @Json(name = "avatar_url") val avatar_url: String
-){
+):DataEntity{
     val avatarUrl: String
         get() = if (avatar_url.isEmpty()) {
             avatar_url
