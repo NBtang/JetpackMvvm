@@ -1,10 +1,10 @@
-package me.laotang.carry.mvvm.store.core.dispatcher.rx
+package me.laotang.carry.mvvm.store.redux.dispatcher.rx
 
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import me.laotang.carry.core.subscriber.RxSubscriber
-import me.laotang.carry.mvvm.store.core.dispatcher.Dispatcher
-import me.laotang.carry.mvvm.store.core.dispatcher.IDispatcher
+import me.laotang.carry.mvvm.store.redux.dispatcher.Dispatcher
+import me.laotang.carry.mvvm.store.redux.dispatcher.IDispatcher
 
 class RxDispatcher<A>(private val dispatcher: IDispatcher<A, *>) :
     Dispatcher<Observable<A>, Unit>() {

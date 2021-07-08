@@ -1,10 +1,10 @@
-package me.laotang.carry.mvvm.store.core.dispatcher.flow
+package me.laotang.carry.mvvm.store.redux.dispatcher.flow
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import me.laotang.carry.mvvm.store.core.dispatcher.Dispatcher
-import me.laotang.carry.mvvm.store.core.dispatcher.IDispatcher
+import me.laotang.carry.mvvm.store.redux.dispatcher.Dispatcher
+import me.laotang.carry.mvvm.store.redux.dispatcher.IDispatcher
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 

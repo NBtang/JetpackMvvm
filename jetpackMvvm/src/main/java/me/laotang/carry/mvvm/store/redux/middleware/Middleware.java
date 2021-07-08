@@ -1,4 +1,4 @@
-package me.laotang.carry.mvvm.store.core.middleware;
+package me.laotang.carry.mvvm.store.redux.middleware;
 
 public interface Middleware<A,R> {
 

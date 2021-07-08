@@ -1,10 +1,10 @@
-package me.laotang.carry.mvvm.store.core.dispatcher;
+package me.laotang.carry.mvvm.store.redux.dispatcher;
 
 import java.util.Arrays;
 import java.util.Iterator;
 
-import me.laotang.carry.mvvm.store.core.effect.Effect;
-import me.laotang.carry.mvvm.store.core.middleware.Middleware;
+import me.laotang.carry.mvvm.store.redux.Effect;
+import me.laotang.carry.mvvm.store.redux.middleware.Middleware;
 
 public abstract class Dispatcher<A, R> implements IDispatcher<A, R> {
 
@@ -19,18 +19,26 @@ public abstract class Dispatcher<A, R> implements IDispatcher<A, R> {
         };
     }
 
-    public static <T extends Effect<A>, A> Dispatcher<A, A> create(final T effect, final IDispatcher<A, A> dispatcher) {
+    @SafeVarargs
+    public static <T extends Effect<A>, A> Dispatcher<A, A> create(final T effect, final IDispatcher<A, A>... dispatcher) {
         if (dispatcher == null) {
             return create(effect);
         }
         return new Dispatcher<A, A>() {
             @Override
             public A dispatch(A action) {
-                A newAction = dispatcher.dispatch(action);
-                effect.onEffect(newAction);
-                return newAction;
+                effect.onEffect(action);
+                return action;
             }
-        };
+        }.chain(new Middleware<A, A>(){
+            @Override
+            public A dispatch(Next<A, A> next, A action) {
+                for (IDispatcher<A, A> iDispatcher : dispatcher) {
+                    iDispatcher.dispatch(action);
+                }
+                return next.next(action);
+            }
+        });
     }
 
     public final Dispatcher<A, R> chain(final Middleware<A, R> middleware) {

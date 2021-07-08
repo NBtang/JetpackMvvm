@@ -1,46 +1,57 @@
 package me.laotang.carry.mvvm.demo.store
 
-import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.map
 import me.laotang.carry.AppManager
 import me.laotang.carry.core.subscriber.ProgressDialogUtil
-import me.laotang.carry.mvvm.store.Action
-import me.laotang.carry.mvvm.store.SideEffect
-import me.laotang.carry.mvvm.store.SimpleStore
-import me.laotang.carry.mvvm.store.core.middleware.LogMiddleware
-import me.laotang.carry.mvvm.store.core.middleware.Middleware
-import me.laotang.carry.mvvm.store.core.state.State
+import me.laotang.carry.mvvm.store.*
+import me.laotang.carry.mvvm.store.redux.Effect
+import me.laotang.carry.mvvm.store.redux.dispatcher.Dispatcher
+import me.laotang.carry.mvvm.store.redux.middleware.LogMiddleware
+import me.laotang.carry.mvvm.store.redux.Store
 import javax.inject.Inject
 import javax.inject.Singleton
+
+/**
+ * 全局数据
+ */
+data class GlobalState(val token: String = "")
 
 /**
  * 全局Store，处理一些全局的action，处理以及提供全局范围的数据
  */
 @Singleton
-class GlobalStore @Inject constructor(@ApplicationContext private val context: Context) :
-    SimpleStore(), State<Action> {
+class GlobalStore @Inject constructor() :
+    Effect<Action>, Store<GlobalState> {
 
-    init {
-        addState(this)
+    private val mGlobalStateLiveData: MutableLiveData<GlobalState> by lazy {
+        MutableLiveData(GlobalState())
     }
 
-    override fun addMiddleware(middlewareList: MutableList<Middleware<Action, Action>>) {
-        super.addMiddleware(middlewareList)
-        //提供action的日志记录功能
-        middlewareList += LogMiddleware("${GlobalStore::class.java.simpleName} action")
+    private val mDispatcher: Dispatcher<Action, Action> by lazy {
+        Dispatcher.create(this)
+            .chain(LogMiddleware("${GlobalStore::class.java.simpleName} action"))
     }
 
-    @ExperimentalCoroutinesApi
-    override fun getSideEffects(): List<SideEffect> {
-        return listOf(
-            ::loadingActionSideEffect
-        )
-    }
+    val dispatcher: Dispatcher<Action, Action>
+        get() = mDispatcher
 
-    //loading框显示以及隐藏事件，对于应用来讲，应属于唯一事件，同时只能出现一个loading框
-    @ExperimentalCoroutinesApi
-    private fun loadingActionSideEffect(action: Action): Boolean {
+    val token: String
+        get() {
+            return mGlobalStateLiveData.value!!.token
+        }
+
+    val isLoginLiveData: LiveData<Boolean>
+        get() = mGlobalStateLiveData.map { it.token.isNotEmpty() }.distinctUntilChanged()
+
+    val isLogin: Boolean
+        get() = token.isNotEmpty()
+
+
+    override fun onEffect(action: Action) {
+        //loading框显示以及隐藏事件，对于应用来讲，应属于唯一事件，同时只能出现一个loading框
         if (action is GlobalAction.LoadingAction) {
             AppManager.instance.getTopActivity()?.let {
                 if (action.show) {
@@ -53,23 +64,27 @@ class GlobalStore @Inject constructor(@ApplicationContext private val context: C
                     ProgressDialogUtil.dismissLoadingDialog()
                 }
             }
-            return true
         }
-        return false
     }
 
-    override fun setState(state: Action) {
+    override fun getState(): GlobalState {
+        return mGlobalStateLiveData.value!!
+    }
 
+    override fun setState(state: GlobalState) {
+        mGlobalStateLiveData.value = state
     }
 }
 
-
+/**
+ * GlobalStore响应的action
+ */
 sealed class GlobalAction : Action {
     data class LoadingAction(val show: Boolean, val message: String) : GlobalAction(), Action
 }
 
 object GlobalActionCreator {
-    fun loading(show: Boolean, message: String = ""): Action {
+    fun loading(show: Boolean, message: String = "加载中"): Action {
         return GlobalAction.LoadingAction(show, message)
     }
 }

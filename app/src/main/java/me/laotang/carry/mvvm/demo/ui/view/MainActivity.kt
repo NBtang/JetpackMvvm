@@ -26,10 +26,10 @@ class MainActivity : BaseDataBindActivity<ActivityMainBinding>() {
     @Inject
     lateinit var jsonConverter: JsonConverter
 
-    private val viewModel by viewModels<MainViewModel>()
+    private val storeViewModel by viewModels<MainViewModel>()
 
     private val listenerHandler: ListenerHandler by lazy {
-        ListenerHandler(viewModel)
+        ListenerHandler(storeViewModel)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +38,7 @@ class MainActivity : BaseDataBindActivity<ActivityMainBinding>() {
         if (savedInstanceState == null) {
             //liveData响应生命周期不一定及时，通过view.post来确保liveData的订阅有效
             binding.root.post {
-                viewModel.dispatcher.dispatch(MainViewActionCreator.load(0))
+                storeViewModel.dispatcher.dispatch(MainViewActionCreator.load(0))
             }
         }
     }
@@ -46,27 +46,28 @@ class MainActivity : BaseDataBindActivity<ActivityMainBinding>() {
     override fun layoutId(): Int = R.layout.activity_main
 
     override fun getDataBindingConfig(): DataBindingConfig {
-        return DataBindingConfig(BR.vm, viewModel)
+        return DataBindingConfig(BR.vm, storeViewModel)
             .addBindingParam(BR.listener, listenerHandler)
     }
 
     override fun onDestroy() {
         super.onDestroy()
     }
+    
     /**
      * MainActivity的UI响应事件（如点击），单独拎出来，通过dataBinding实现绑定，交互的数据由viewModel层提供
-     * MainActivity处理其他和model层不交互的UI事件
+     * 处理和model层有交互的事件
      * 进一步保证view层的UI显示由viewModel中的数据来驱动
      */
-    class ListenerHandler(private val store: MainViewModel) {
+    class ListenerHandler(private val storeViewModel: MainViewModel) {
         val userInfoRequestConsumer: Consumer<Unit> by lazy {
             Consumer<Unit> {
-                val lastIdQueried = store.lastIdQueried.toIntOrNull()
+                val lastIdQueried = storeViewModel.lastIdQueried.toIntOrNull()
                 if (lastIdQueried == null) {
                     "Id不能为空".toasty()
                     return@Consumer
                 }
-                store.dispatcher.dispatch(MainViewActionCreator.load(lastIdQueried))
+                storeViewModel.dispatcher.dispatch(MainViewActionCreator.load(lastIdQueried))
             }
         }
     }
