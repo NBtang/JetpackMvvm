@@ -1,19 +1,18 @@
-package me.laotang.carry.mvvm.view
+package me.laotang.carry.mvvm.binding
 
 import android.util.SparseArray
-import androidx.lifecycle.ViewModel
 
 
-class DataBindingConfig(
-    val vmVariableId: Int,
-    val storeViewModel: ViewModel
+class DataBindingConfig<T>(
+    val variableId: Int,
+    val value: T
 ) {
     val bindingParams: SparseArray<Any> = SparseArray<Any>()
 
     fun addBindingParam(
         variableId: Int,
         any: Any
-    ): DataBindingConfig {
+    ): DataBindingConfig<T> {
         if (bindingParams.indexOfKey(variableId) < 0) {
             bindingParams.put(variableId, any)
         }

@@ -39,10 +39,10 @@ abstract class SimpleStore<S>(
 
     private var mRxDispatcher: RxDispatcher<Action>? = null
 
-    protected val flowDispatcher: IDispatcher<Flow<Action>, Job>
+    val flowDispatcher: IDispatcher<Flow<Action>, Job>
         get() = getFlowDispatcher()
 
-    protected val rxDispatcher: IDispatcher<Observable<Action>, Unit>
+    val rxDispatcher: IDispatcher<Observable<Action>, Unit>
         get() = getRxDispatcher()
 
     private var isDestroyed: Boolean = false
@@ -94,4 +94,30 @@ abstract class SimpleStore<S>(
 
     abstract fun getSideMatch(): SideMatch<Action, S>
 
+}
+
+
+interface DispatcherDelegate {
+    fun emit(action: Action)
+    fun emit(action: Flow<Action>)
+    fun emit(action: Observable<Action>)
+}
+
+
+fun <S> SimpleStore<S>.dispatch(block: DispatcherDelegate.() -> Unit) {
+    val store = this
+    val dispatcherWrapper = object : DispatcherDelegate {
+        override fun emit(action: Action) {
+            store.dispatcher.dispatch(action)
+        }
+
+        override fun emit(action: Flow<Action>) {
+            store.flowDispatcher.dispatch(action)
+        }
+
+        override fun emit(action: Observable<Action>) {
+            store.rxDispatcher.dispatch(action)
+        }
+    }
+    dispatcherWrapper.block()
 }

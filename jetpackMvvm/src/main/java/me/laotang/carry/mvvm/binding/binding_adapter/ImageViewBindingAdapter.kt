@@ -1,4 +1,4 @@
-package me.laotang.carry.mvvm.binding_adapter
+package me.laotang.carry.mvvm.binding.binding_adapter
 
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter

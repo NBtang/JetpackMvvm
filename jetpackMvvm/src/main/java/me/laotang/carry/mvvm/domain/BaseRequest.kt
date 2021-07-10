@@ -5,6 +5,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.components.ApplicationComponent
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import me.jessyan.rxerrorhandler.core.RxErrorHandler
 import me.jessyan.rxerrorhandler.handler.ErrorHandlerFactory
 import me.laotang.carry.AppManager
@@ -18,7 +22,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 abstract class BaseRequest : Closeable {
 
     //全局异常回调
-    protected lateinit var mHandlerFactory: ErrorHandlerFactory
+    internal lateinit var mHandlerFactory: ErrorHandlerFactory
 
     @EntryPoint
     @InstallIn(ApplicationComponent::class)
@@ -76,5 +80,23 @@ abstract class BaseRequest : Closeable {
 
     override fun close() {
         scope.cancel()
+    }
+}
+
+
+fun <T> BaseRequest.flowCatch(
+    defaultValue: T?,
+    errorReport: Boolean = true,
+    block: suspend FlowCollector<T>.() -> Unit
+): Flow<T> {
+    return flow {
+        this.block()
+    }.catch { cause ->
+        if (errorReport) {
+            mHandlerFactory.handleError(cause)
+        }
+        defaultValue?.let {
+            emit(it)
+        }
     }
 }

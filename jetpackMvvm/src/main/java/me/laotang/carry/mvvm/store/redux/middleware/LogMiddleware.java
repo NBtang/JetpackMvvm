@@ -21,7 +21,11 @@ public class LogMiddleware<A, R> implements Middleware<A, R> {
     @Override
     public R dispatch(Next<A, R> next, A action) {
         Timber.tag(tag);
-        Timber.log(priority,action.toString());
+        Timber.log(priority, action.toString());
         return next.next(action);
+    }
+
+    @Override
+    public void onCleared() {
     }
 }

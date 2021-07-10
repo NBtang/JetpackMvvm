@@ -24,13 +24,7 @@ public abstract class Dispatcher<A, R> implements IDispatcher<A, R> {
         if (dispatcher == null) {
             return create(effect);
         }
-        return new Dispatcher<A, A>() {
-            @Override
-            public A dispatch(A action) {
-                effect.onEffect(action);
-                return action;
-            }
-        }.chain(new Middleware<A, A>(){
+        final Middleware<A, A> middleware = new Middleware<A, A>() {
             @Override
             public A dispatch(Next<A, A> next, A action) {
                 for (IDispatcher<A, A> iDispatcher : dispatcher) {
@@ -38,7 +32,19 @@ public abstract class Dispatcher<A, R> implements IDispatcher<A, R> {
                 }
                 return next.next(action);
             }
-        });
+
+            @Override
+            public void onCleared() {
+
+            }
+        };
+        return new Dispatcher<A, A>() {
+            @Override
+            public A dispatch(A action) {
+                effect.onEffect(action);
+                return action;
+            }
+        }.chain(middleware);
     }
 
     public final Dispatcher<A, R> chain(final Middleware<A, R> middleware) {
@@ -54,6 +60,12 @@ public abstract class Dispatcher<A, R> implements IDispatcher<A, R> {
                         return Dispatcher.this.dispatch(action);
                     }
                 }, action);
+            }
+
+            @Override
+            public void onCleared() {
+                middleware.onCleared();
+                super.onCleared();
             }
         };
     }

@@ -4,7 +4,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.lifecycle.ViewModel
 import me.laotang.carry.core.subscriber.ProgressDialogUtil
+import me.laotang.carry.mvvm.binding.DataBindingConfig
 
 abstract class BaseDataBindActivity<T : ViewDataBinding> : AppCompatActivity() {
 
@@ -12,12 +14,12 @@ abstract class BaseDataBindActivity<T : ViewDataBinding> : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val dataBindingConfig: DataBindingConfig = getDataBindingConfig()
+        val dataBindingConfig: DataBindingConfig<ViewModel> = getDataBindingConfig()
         binding = DataBindingUtil.setContentView(this, layoutId())
         binding.lifecycleOwner = this
         binding.setVariable(
-            dataBindingConfig.vmVariableId,
-            dataBindingConfig.storeViewModel
+            dataBindingConfig.variableId,
+            dataBindingConfig.value
         )
         val bindingParams = dataBindingConfig.bindingParams
         for (i in 0 until bindingParams.size()) {
@@ -27,7 +29,7 @@ abstract class BaseDataBindActivity<T : ViewDataBinding> : AppCompatActivity() {
 
     abstract fun layoutId(): Int
 
-    abstract fun getDataBindingConfig(): DataBindingConfig
+    abstract fun getDataBindingConfig(): DataBindingConfig<ViewModel>
 
     override fun onDestroy() {
         super.onDestroy()

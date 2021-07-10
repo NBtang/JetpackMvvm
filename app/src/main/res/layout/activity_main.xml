@@ -10,7 +10,6 @@
         <variable
             name="listener"
             type="me.laotang.carry.mvvm.demo.ui.view.MainActivity.ListenerHandler" />
-
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -26,6 +25,7 @@
             android:layout_height="match_parent"
             app:onRefresh="@{listener.onRefresh}"
             >
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
@@ -34,11 +34,13 @@
                 android:overScrollMode="never"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
+                app:fixedSize="@{true}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                />
+                app:onScrollState="@{listener.onScrollState}"
+                 />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 

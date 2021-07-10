@@ -1,10 +1,12 @@
 package me.laotang.carry.mvvm.store.redux.middleware;
 
-public interface Middleware<A,R> {
+public interface Middleware<A, R> {
 
-    R dispatch(Next<A,R> next, A action);
+    R dispatch(Next<A, R> next, A action);
 
-    interface Next<A,R> {
+    void onCleared();
+
+    interface Next<A, R> {
         R next(A action);
     }
 }

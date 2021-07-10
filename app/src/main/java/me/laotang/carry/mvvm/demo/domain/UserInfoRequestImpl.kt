@@ -1,11 +1,10 @@
 package me.laotang.carry.mvvm.demo.domain
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
 import me.laotang.carry.mvvm.demo.model.entity.User
 import me.laotang.carry.mvvm.demo.model.repository.DataRepository
 import me.laotang.carry.mvvm.domain.BaseRequest
+import me.laotang.carry.mvvm.domain.flowCatch
 import javax.inject.Inject
 
 /**
@@ -15,12 +14,9 @@ class UserInfoRequestImpl @Inject constructor(private val dataRepository: DataRe
     BaseRequest() {
 
     fun getUsers(lastIdQueried: Int): Flow<List<User>> {
-        return flow {
+        return flowCatch(listOf()) {
             val users = dataRepository.getUsers(lastIdQueried)
             emit(users)
-        }.catch { cause ->
-            mHandlerFactory.handleError(cause)
-            emit(listOf())
         }
     }
 
