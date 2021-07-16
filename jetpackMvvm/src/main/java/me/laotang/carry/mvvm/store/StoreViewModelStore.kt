@@ -2,13 +2,15 @@ package me.laotang.carry.mvvm.store
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import me.laotang.carry.mvvm.store.redux.Effect
 import me.laotang.carry.mvvm.store.redux.SideMatch
 import me.laotang.carry.mvvm.store.redux.Store
-import me.laotang.carry.mvvm.store.redux.dispatcher.*
+import me.laotang.carry.mvvm.store.redux.dispatcher.Dispatcher
+import me.laotang.carry.mvvm.store.redux.dispatcher.DispatcherWrapper
+import me.laotang.carry.mvvm.store.redux.dispatcher.IDispatcherWrapper
 
-
-abstract class SimpleStore<S> : Store<S>, Effect<Action> {
+abstract class StoreViewModelStore<S> : ViewModel(), Store<S>, Effect<Action> {
 
     private val mStateLiveData: MutableLiveData<S> by lazy {
         MutableLiveData(initState())
@@ -25,18 +27,6 @@ abstract class SimpleStore<S> : Store<S>, Effect<Action> {
     val dispatcher: IDispatcherWrapper<Action>
         get() = mDispatcher
 
-    private var isDestroyed: Boolean = false
-
-    override fun onEffect(action: Action) {
-        if (isDestroyed) {
-            return
-        }
-        if (mSideMatch.effect(action)) {
-            return
-        }
-        this.mStateLiveData.value = mSideMatch.reducer(action, mStateLiveData.value!!)
-    }
-
     open fun getStateAsLiveData(): LiveData<S> {
         return this.mStateLiveData
     }
@@ -49,8 +39,16 @@ abstract class SimpleStore<S> : Store<S>, Effect<Action> {
         this.mStateLiveData.value = state
     }
 
-    open fun destroy() {
-        isDestroyed = true
+    override fun onEffect(action: Action) {
+        if (mSideMatch.effect(action)) {
+            return
+        }
+        this.mStateLiveData.value = mSideMatch.reducer(action, mStateLiveData.value!!)
+    }
+
+
+    override fun onCleared() {
+        super.onCleared()
         mDispatcher.onCleared()
     }
 
@@ -59,5 +57,4 @@ abstract class SimpleStore<S> : Store<S>, Effect<Action> {
     abstract fun getDispatcher(): Dispatcher<Action, Action>
 
     abstract fun getSideMatch(): SideMatch<Action, S>
-
 }

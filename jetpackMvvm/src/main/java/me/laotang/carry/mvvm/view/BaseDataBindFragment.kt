@@ -1,21 +1,27 @@
 package me.laotang.carry.mvvm.view
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import me.laotang.carry.mvvm.binding.DataBindingConfig
 
-abstract class BaseDataBindActivity<T : ViewDataBinding> : AppCompatActivity() {
+abstract class BaseDataBindFragment<T : ViewDataBinding> : Fragment() {
 
     protected lateinit var binding: T
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val dataBindingConfig: DataBindingConfig<ViewModel> = getDataBindingConfig()
-        binding = DataBindingUtil.setContentView(this, layoutId())
-        binding.lifecycleOwner = this
+        binding = DataBindingUtil.inflate(inflater, layoutId(), container, false)
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.setVariable(
             dataBindingConfig.variableId,
             dataBindingConfig.value
@@ -24,14 +30,15 @@ abstract class BaseDataBindActivity<T : ViewDataBinding> : AppCompatActivity() {
         for (i in 0 until bindingParams.size()) {
             binding.setVariable(bindingParams.keyAt(i), bindingParams.valueAt(i))
         }
+        return binding.root
     }
 
     abstract fun layoutId(): Int
 
     abstract fun getDataBindingConfig(): DataBindingConfig<ViewModel>
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         binding.unbind()
     }
 }

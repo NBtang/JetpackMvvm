@@ -12,7 +12,6 @@ import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.module.UpFetchModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import me.laotang.carry.mvvm.binding.DataBindingConfig
-import me.laotang.carry.mvvm.demo.util.DiffDataItemCallback
 import me.laotang.carry.mvvm.entity.DataEntity
 
 /**

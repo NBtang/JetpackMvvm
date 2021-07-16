@@ -4,7 +4,7 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import me.laotang.carry.mvvm.demo.model.entity.User
 import me.laotang.carry.mvvm.store.Action
-import me.laotang.carry.mvvm.store.redux.dispatcher.IDispatcher
+import me.laotang.carry.mvvm.store.redux.dispatcher.IDispatcherWrapper
 
 /**
  * UI页面相关数据由viewModel维护，如（EditText中的内容、CheckBox的选中状态，网络请求返回的数据等）
@@ -16,7 +16,7 @@ class MainViewModel @ViewModelInject constructor(
 ) :
     ViewModel() {
 
-    private val dispatcher: IDispatcher<Action, Action>
+    private val dispatcher: IDispatcherWrapper<Action>
         get() = store.dispatcher
 
     val usersLiveData: LiveData<List<User>>

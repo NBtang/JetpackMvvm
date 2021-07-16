@@ -1,4 +1,4 @@
-package me.laotang.carry.mvvm.demo.monitor
+package me.laotang.carry.mvvm.demo.middleware.monitor
 
 import kotlinx.coroutines.*
 import me.laotang.carry.mvvm.store.Action
@@ -31,6 +31,7 @@ class MonitorMiddleware<S>(private val store: Store<S>) :
     override fun dispatch(next: Middleware.Next<Action, Action>, action: Action): Action? {
         val r = next.next(action)
         //上报数据
+        //本次action以及该action响应后的最新的state
         if (action is MonitorAction) {
             val state = store.getState()
             val reportMessage = Pair(action, state)

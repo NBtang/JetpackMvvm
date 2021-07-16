@@ -27,7 +27,6 @@ fun View.setOnClick(block: Command<Unit>, throttle: Long?) {
             .throttleFirst(throttle ?: 1, TimeUnit.SECONDS)
             .autoDisposable((context as LifecycleOwner).onDestroyScope())
             .subscribe {
-
                 block.execute(Unit)
             }
     } else {

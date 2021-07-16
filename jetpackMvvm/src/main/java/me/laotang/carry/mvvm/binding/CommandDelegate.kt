@@ -1,5 +1,9 @@
 package me.laotang.carry.mvvm.binding
 
+import dagger.hilt.android.EntryPointAccessors
+import me.laotang.carry.AppManager
+import me.laotang.carry.mvvm.config.CommandHookConfiguration
+import me.laotang.carry.mvvm.config.ConfigurationEntryPoint
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -44,7 +48,19 @@ internal class CommandHookOwner<T : Any>(
 
     init {
         if (hookEnable) {
-            mCommandHook = commandHook ?: CommandHook.defaultCommandCommandHook
+            if (CommandHook.defaultCommandCommandHook == null) {
+                val configurationEntryPoint = EntryPointAccessors.fromApplication(
+                    AppManager.instance.getApplicationContext(),
+                    ConfigurationEntryPoint::class.java
+                )
+                val configuration = configurationEntryPoint.globalConfigModule()
+                    .provideCustomConfigurationWrap()?.customConfigurations?.findLast { it is CommandHookConfiguration }
+                configuration?.let {
+                    CommandHook.setDefaultHook((it as CommandHookConfiguration).commandHook)
+                }
+            }
+            mCommandHook =
+                commandHook ?: CommandHook.defaultCommandCommandHook
         }
         mName = if (name.isNotEmpty()) name else commandName
     }

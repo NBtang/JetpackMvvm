@@ -1,4 +1,4 @@
-package me.laotang.carry.mvvm.demo.util
+package me.laotang.carry.mvvm.demo.ui.view.adapter
 
 import androidx.recyclerview.widget.DiffUtil
 import me.laotang.carry.mvvm.entity.DataEntity

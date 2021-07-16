@@ -1,18 +1,19 @@
 package me.laotang.carry.mvvm.demo.ui.store
 
+import com.squareup.moshi.JsonClass
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import me.laotang.carry.mvvm.demo.domain.UserInfoRequestImpl
 import me.laotang.carry.mvvm.demo.model.entity.User
-import me.laotang.carry.mvvm.demo.monitor.MonitorAction
-import me.laotang.carry.mvvm.demo.monitor.MonitorMiddleware
+import me.laotang.carry.mvvm.demo.middleware.monitor.MonitorAction
+import me.laotang.carry.mvvm.demo.middleware.monitor.MonitorMiddleware
+import me.laotang.carry.mvvm.demo.middleware.restore.RestoreMiddleware
 import me.laotang.carry.mvvm.demo.store.GlobalActionCreator
 import me.laotang.carry.mvvm.demo.store.GlobalStore
 import me.laotang.carry.mvvm.store.Action
 import me.laotang.carry.mvvm.store.SimpleStore
-import me.laotang.carry.mvvm.store.dispatch
 import me.laotang.carry.mvvm.store.redux.SideMatch
 import me.laotang.carry.mvvm.store.redux.dispatcher.Dispatcher
 import me.laotang.carry.mvvm.store.redux.matchClass
@@ -22,6 +23,7 @@ import javax.inject.Inject
 /**
  * 数据以及初始值
  */
+@JsonClass(generateAdapter = true)
 data class MainViewState(
     val users: List<User> = listOf(),
     val lastIdQueried: String = "0",
@@ -35,12 +37,19 @@ class MainViewStore @Inject constructor(
     private val globalStore: GlobalStore,
     private val mUserInfoRequestImpl: UserInfoRequestImpl,
 ) :
-    SimpleStore<MainViewState>(MainViewState()) {
+    SimpleStore<MainViewState>() {
+
+    private val restoreTag: String = MainViewStore::class.java.simpleName
+
+    override fun initState(): MainViewState {
+        return MainViewState()
+    }
 
     override fun getDispatcher(): Dispatcher<Action, Action> {
         return Dispatcher.create(this, globalStore.dispatcher)
             .chain(LogMiddleware("${MainViewStore::class.java.simpleName} action"))
             .chain(MonitorMiddleware(this))
+            .chain(RestoreMiddleware(this, restoreTag))
     }
 
     /**
@@ -63,23 +72,21 @@ class MainViewStore @Inject constructor(
         val lastIdQueried = if (!loadMore) 0 else action.lastIdQueried
         val showLoading = action.showLoading
 
-        dispatch {
-            if (showLoading)
-                emit(GlobalActionCreator.loading(true, "加载中..."))
+        if (showLoading)
+            dispatcher.dispatch(GlobalActionCreator.loading(true, "加载中..."))
 
-            //获取用户列表-flow的形式
-            val flowAction = mUserInfoRequestImpl.getUsers(lastIdQueried)
-                .map { MainViewActionCreator.onLoaded(it, loadMore) }
-                .flatMapLatest {
-                    //获取user列表完成后，隐藏loading框，并更新数据
-                    flow {
-                        if (showLoading)
-                            emit(GlobalActionCreator.loading(false))
-                        emit(it)
-                    }
+        //获取用户列表-flow的形式
+        val flowAction = mUserInfoRequestImpl.getUsers(lastIdQueried)
+            .map { MainViewActionCreator.onLoaded(it, loadMore) }
+            .flatMapLatest {
+                //获取user列表完成后，隐藏loading框，并更新数据
+                flow {
+                    if (showLoading)
+                        emit(GlobalActionCreator.loading(false))
+                    emit(it)
                 }
-            emit(flowAction)
-        }
+            }
+        dispatcher.dispatch(flowAction)
     }
 
     /**

@@ -20,11 +20,6 @@
             </intent-filter>
         </activity>
 
-
-        <meta-data
-            android:name="me.laotang.carry.mvvm.demo.app.AppConfigModule"
-            android:value="ConfigModule" />
-
         <meta-data
             android:name="design_width_in_dp"
             android:value="360" />
