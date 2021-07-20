@@ -10,17 +10,17 @@ import me.laotang.carry.util.autoDisposable
 import me.laotang.carry.util.onDestroyScope
 import java.util.concurrent.TimeUnit
 
-@BindingAdapter("visibleOrGone")
+@BindingAdapter("app:visibleOrGone")
 fun View.setVisibleOrGone(show: Boolean) {
     visibility = if (show) VISIBLE else GONE
 }
 
-@BindingAdapter("visible")
+@BindingAdapter("app:visible")
 fun View.setVisible(show: Boolean) {
     visibility = if (show) VISIBLE else INVISIBLE
 }
 
-@BindingAdapter(value = ["clicks", "throttle"], requireAll = false)
+@BindingAdapter(value = ["app:clicks", "app:throttle"], requireAll = false)
 fun View.setOnClick(block: Command<Unit>, throttle: Long?) {
     if (this.context is LifecycleOwner) {
         this.clicks()

@@ -5,7 +5,7 @@ import androidx.databinding.BindingAdapter
 import me.laotang.carry.core.imageloader.UrlImageLoaderViewTarget
 import me.laotang.carry.util.globalEntryPoint
 
-@BindingAdapter("url")
+@BindingAdapter("app:url")
 fun ImageView.setUrl(url: String) {
     try {
         this.context.globalEntryPoint
