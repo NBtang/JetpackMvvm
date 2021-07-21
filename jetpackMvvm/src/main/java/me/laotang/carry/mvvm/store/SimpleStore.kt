@@ -8,7 +8,8 @@ import me.laotang.carry.mvvm.store.redux.Store
 import me.laotang.carry.mvvm.store.redux.dispatcher.*
 
 
-abstract class SimpleStore<S> : Store<S>, Effect<Action> {
+abstract class SimpleStore<S>(val parentStore: SimpleStore<*>? = null) : Store<S>,
+    Effect<Action> {
 
     private val mStateLiveData: MutableLiveData<S> by lazy {
         MutableLiveData(initState())
@@ -31,6 +32,7 @@ abstract class SimpleStore<S> : Store<S>, Effect<Action> {
         if (isDestroyed) {
             return
         }
+        parentStore?.onEffect(action)
         if (mSideMatch.effect(action)) {
             return
         }
