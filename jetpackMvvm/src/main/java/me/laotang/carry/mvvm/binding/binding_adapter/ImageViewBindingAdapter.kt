@@ -10,7 +10,7 @@ fun ImageView.setUrl(url: String) {
     try {
         this.context.globalEntryPoint
             .imageLoader()
-            .loadImage(this, UrlImageLoaderViewTarget(url))
+            .loadImage(this, UrlImageLoaderViewTarget(url = url))
     } catch (e: Exception) {
         e.printStackTrace()
     }

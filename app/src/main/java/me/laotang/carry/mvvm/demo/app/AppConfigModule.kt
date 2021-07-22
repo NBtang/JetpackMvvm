@@ -7,6 +7,7 @@ import me.laotang.carry.core.IConfigModule
 import me.laotang.carry.core.imageloader.ImageLoader
 import me.laotang.carry.core.imageloader.ImageLoaderInterceptor
 import me.laotang.carry.core.imageloader.ImageLoaderViewTarget
+import me.laotang.carry.core.imageloader.UrlImageLoaderViewTarget
 import me.laotang.carry.di.GlobalConfigModule
 import me.laotang.carry.di.ImageLoaderConfiguration
 import me.laotang.carry.di.RetrofitConfiguration
@@ -38,8 +39,12 @@ class AppConfigModule : IConfigModule {
                             view: View,
                             viewTarget: ImageLoaderViewTarget<*>
                         ) {
-                            viewTarget.placeholder = R.mipmap.ic_launcher_round
-                            chain.proceed(view,viewTarget)
+                            val newViewTarget = if(viewTarget is UrlImageLoaderViewTarget){
+                                viewTarget.copy(placeholder =  R.mipmap.ic_launcher_round)
+                            }else{
+                                viewTarget
+                            }
+                            chain.proceed(view,newViewTarget)
                         }
                     })
                 }
