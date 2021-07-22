@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import androidx.lifecycle.ViewModel
 import me.laotang.carry.mvvm.binding.DataBindingConfig
 
 abstract class BaseDataBindActivity<T : ViewDataBinding> : AppCompatActivity() {
@@ -13,7 +12,7 @@ abstract class BaseDataBindActivity<T : ViewDataBinding> : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val dataBindingConfig: DataBindingConfig<ViewModel> = getDataBindingConfig()
+        val dataBindingConfig: DataBindingConfig = getDataBindingConfig()
         binding = DataBindingUtil.setContentView(this, layoutId())
         binding.lifecycleOwner = this
         binding.setVariable(
@@ -28,7 +27,7 @@ abstract class BaseDataBindActivity<T : ViewDataBinding> : AppCompatActivity() {
 
     abstract fun layoutId(): Int
 
-    abstract fun getDataBindingConfig(): DataBindingConfig<ViewModel>
+    abstract fun getDataBindingConfig(): DataBindingConfig
 
     override fun onDestroy() {
         super.onDestroy()

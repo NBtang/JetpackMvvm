@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
 import me.laotang.carry.mvvm.binding.DataBindingConfig
 
 abstract class BaseDataBindFragment<T : ViewDataBinding> : Fragment() {
@@ -19,7 +18,7 @@ abstract class BaseDataBindFragment<T : ViewDataBinding> : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val dataBindingConfig: DataBindingConfig<ViewModel> = getDataBindingConfig()
+        val dataBindingConfig: DataBindingConfig = getDataBindingConfig()
         binding = DataBindingUtil.inflate(inflater, layoutId(), container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.setVariable(
@@ -35,7 +34,7 @@ abstract class BaseDataBindFragment<T : ViewDataBinding> : Fragment() {
 
     abstract fun layoutId(): Int
 
-    abstract fun getDataBindingConfig(): DataBindingConfig<ViewModel>
+    abstract fun getDataBindingConfig(): DataBindingConfig
 
     override fun onDestroyView() {
         super.onDestroyView()

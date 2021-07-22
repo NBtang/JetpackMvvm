@@ -17,9 +17,9 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 /**
- * 根据业务抽离一个个Request，便于复用
+ * 根据业务抽离一个个UseCase，便于复用
  */
-abstract class BaseRequest : Closeable {
+abstract class BaseUseCase : Closeable {
 
     //全局异常回调
     internal lateinit var mHandlerFactory: ErrorHandlerFactory
@@ -84,7 +84,7 @@ abstract class BaseRequest : Closeable {
 }
 
 
-fun <T> BaseRequest.flowCatch(
+fun <T> BaseUseCase.flowCatch(
     defaultValue: T?,
     errorReport: Boolean = true,
     block: suspend FlowCollector<T>.() -> Unit

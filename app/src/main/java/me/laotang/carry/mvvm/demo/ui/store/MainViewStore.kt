@@ -5,7 +5,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import me.laotang.carry.mvvm.demo.domain.UserInfoRequestImpl
+import me.laotang.carry.mvvm.demo.domain.UserInfoUseCaseImpl
 import me.laotang.carry.mvvm.demo.model.entity.User
 import me.laotang.carry.mvvm.demo.middleware.monitor.MonitorAction
 import me.laotang.carry.mvvm.demo.middleware.monitor.MonitorMiddleware
@@ -35,7 +35,7 @@ data class MainViewState(
  */
 class MainViewStore @Inject constructor(
     private val globalStore: GlobalStore,
-    private val mUserInfoRequestImpl: UserInfoRequestImpl,
+    private val mUserInfoRequestImpl: UserInfoUseCaseImpl,
 ) :
     SimpleStore<MainViewState>() {
 

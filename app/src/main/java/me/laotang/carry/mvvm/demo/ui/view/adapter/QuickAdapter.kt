@@ -38,7 +38,7 @@ abstract class AdapterDelegate<T> {
  */
 abstract class DataBindingAdapterDelegate<T : DataEntity, B : ViewDataBinding>(
     private val dateVariableId: Int,
-    private val config: DataBindingConfig<Any>? = null
+    private val config: DataBindingConfig? = null
 ) :
     AdapterDelegate<T>() {
 
@@ -189,7 +189,7 @@ fun <T> quickAdapter(
  */
 fun <T : DataEntity, B : ViewDataBinding> AdapterDelegator<T>.asDataBinding(
     dateVariableId: Int,
-    config: DataBindingConfig<Any>? = null,
+    config: DataBindingConfig? = null,
     loadMoreEnable: Boolean = true,
 ): BaseQuickAdapter<T, BaseViewHolder> {
     val delegate = if (loadMoreEnable) {

@@ -3,16 +3,16 @@ package me.laotang.carry.mvvm.binding
 import android.util.SparseArray
 
 
-class DataBindingConfig<T>(
+class DataBindingConfig(
     val variableId: Int,
-    val value: T
+    val value: Any
 ) {
     val bindingParams: SparseArray<Any> = SparseArray<Any>()
 
     fun addBindingParam(
         variableId: Int,
         any: Any
-    ): DataBindingConfig<T> {
+    ): DataBindingConfig {
         if (bindingParams.indexOfKey(variableId) < 0) {
             bindingParams.put(variableId, any)
         }

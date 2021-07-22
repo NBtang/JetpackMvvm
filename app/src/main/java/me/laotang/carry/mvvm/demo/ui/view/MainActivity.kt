@@ -3,7 +3,6 @@ package me.laotang.carry.mvvm.demo.ui.view
 import android.app.Activity
 import android.os.Bundle
 import androidx.activity.viewModels
-import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
@@ -80,8 +79,8 @@ class MainActivity : BaseDataBindActivity<ActivityMainBinding>() {
 
     override fun layoutId(): Int = R.layout.activity_main
 
-    override fun getDataBindingConfig(): DataBindingConfig<ViewModel> {
-        return DataBindingConfig<ViewModel>(BR.vm, storeViewModel)
+    override fun getDataBindingConfig(): DataBindingConfig {
+        return DataBindingConfig(BR.vm, storeViewModel)
             .addBindingParam(BR.listener, listenerHandler)
     }
 
