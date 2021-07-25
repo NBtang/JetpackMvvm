@@ -1,15 +1,11 @@
 package me.laotang.carry.mvvm.demo.store
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.map
 import me.laotang.carry.AppManager
 import me.laotang.carry.core.subscriber.ProgressDialogUtil
 import me.laotang.carry.mvvm.store.*
-import me.laotang.carry.mvvm.store.redux.Effect
+import me.laotang.carry.mvvm.store.redux.SideMatch
 import me.laotang.carry.mvvm.store.redux.dispatcher.Dispatcher
-import me.laotang.carry.mvvm.store.redux.Store
+import me.laotang.carry.mvvm.store.redux.matchClass
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,54 +19,33 @@ data class GlobalState(val token: String = "")
  */
 @Singleton
 class GlobalStore @Inject constructor() :
-    Effect<Action>, Store<GlobalState> {
+    SimpleStore<GlobalState>() {
 
-    private val mGlobalStateLiveData: MutableLiveData<GlobalState> by lazy {
-        MutableLiveData(GlobalState())
+    override fun initState(): GlobalState {
+        return GlobalState()
     }
 
-    private val mDispatcher: Dispatcher<Action, Action> by lazy {
-        Dispatcher.create(this)
+    override fun getDispatcher(): Dispatcher<Action, Action> {
+        return Dispatcher.create(this)
     }
 
-    val dispatcher: Dispatcher<Action, Action>
-        get() = mDispatcher
+    override fun getSideMatch(): SideMatch<Action, GlobalState> {
+        return matchClass<Action, GlobalState>()
+            .`when`(GlobalAction.LoadingAction::class.java, ::showLoading)
+    }
 
-    val token: String
-        get() {
-            return mGlobalStateLiveData.value!!.token
-        }
-
-    val isLoginLiveData: LiveData<Boolean>
-        get() = mGlobalStateLiveData.map { it.token.isNotEmpty() }.distinctUntilChanged()
-
-    val isLogin: Boolean
-        get() = token.isNotEmpty()
-
-
-    override fun onEffect(action: Action) {
-        //loading框显示以及隐藏事件，对于应用来讲，应属于唯一事件，同时只能出现一个loading框
-        if (action is GlobalAction.LoadingAction) {
-            AppManager.instance.getTopActivity()?.let {
-                if (action.show) {
-                    ProgressDialogUtil.showLoadingDialog(
-                        context = it,
-                        content = action.message,
-                        cancelable = false,
-                    )
-                } else {
-                    ProgressDialogUtil.dismissLoadingDialog()
-                }
+    private fun showLoading(action: GlobalAction.LoadingAction) {
+        AppManager.instance.getTopActivity()?.let {
+            if (action.show) {
+                ProgressDialogUtil.showLoadingDialog(
+                    context = it,
+                    content = action.message,
+                    cancelable = false,
+                )
+            } else {
+                ProgressDialogUtil.dismissLoadingDialog()
             }
         }
-    }
-
-    override fun getState(): GlobalState {
-        return mGlobalStateLiveData.value!!
-    }
-
-    override fun setState(state: GlobalState) {
-        mGlobalStateLiveData.value = state
     }
 }
 
@@ -78,7 +53,7 @@ class GlobalStore @Inject constructor() :
  * GlobalStore响应的action
  */
 sealed class GlobalAction : Action {
-    data class LoadingAction(val show: Boolean, val message: String) : GlobalAction(), Action
+    data class LoadingAction(val show: Boolean, val message: String) : GlobalAction(), BroadcastAction
 }
 
 object GlobalActionCreator {

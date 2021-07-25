@@ -34,10 +34,10 @@ data class MainViewState(
  * 通过action处理业务，更新state中的数据，再由State去分发
  */
 class MainViewStore @Inject constructor(
-    private val globalStore: GlobalStore,
+    globalStore: GlobalStore,
     private val mUserInfoRequestImpl: UserInfoUseCaseImpl,
 ) :
-    SimpleStore<MainViewState>() {
+    SimpleStore<MainViewState>(globalStore) {
 
     private val restoreTag: String = MainViewStore::class.java.simpleName
 
@@ -46,7 +46,7 @@ class MainViewStore @Inject constructor(
     }
 
     override fun getDispatcher(): Dispatcher<Action, Action> {
-        return Dispatcher.create(this, globalStore.dispatcher)
+        return Dispatcher.create(this)
             .chain(LogMiddleware("${MainViewStore::class.java.simpleName} action"))
             .chain(MonitorMiddleware(this))
             .chain(RestoreMiddleware(this, restoreTag))

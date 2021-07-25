@@ -14,7 +14,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.NBtang'
                 artifactId = 'Dispatch'
-                version = '1.0.5'
+                version = '1.0.6'
             }
         }
     }
